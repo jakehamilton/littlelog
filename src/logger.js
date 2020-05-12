@@ -2,75 +2,79 @@
 const chalk = require('chalk');
 
 const util = require('./util');
-const config = require('./config');
 
 /**
- * @typedef {import('./config')} LogLevels
+ * @typedef {import('./config')} Config
  */
 
 /**
- * @typedef {keyof LogLevels} LogLevelKey
+ * @typedef {keyof Config['LEVEL_TO_NUMBER']} LogLevelName
+ */
+
+/**
+ * @typedef {keyof Config['NUMBER_TO_LEVEL']} LogLevelNumber
  */
 
 /**
  * Get the prefix for a log.
  *
- * @param {LogLevels['SILENT'] | LogLevels['INFO'] | LogLevels['DEBUG'] | LogLevels['TRACE']} level
+ * @param {LogLevelName} name
  * @returns {string} prefix
  */
-const getLogPrefix = (level) => {
-    switch (level) {
-        case 0:
+const getLogPrefix = (name, prefix) => {
+    const userPrefix = prefix ? `[${prefix}]` : '';
+
+    switch (name) {
+        case 'SILENT':
             return '';
-        case 1:
-            return chalk`{blueBright.bold [INFO]} `;
-        case 2:
-            return chalk`{yellow.bold [DEBUG]} `;
-        case 3:
-            return chalk`{bold [TRACE]} `;
+        case 'INFO':
+            return chalk`{blueBright.bold ${userPrefix}[INFO]} `;
+        case 'DEBUG':
+            return chalk`{yellow.bold ${userPrefix}[DEBUG]} `;
+        case 'TRACE':
+            return chalk`{bold ${userPrefix}[TRACE]} `;
     }
 };
 
 /**
- * Get the current verbosity set on `process.env.LOG_LEVEL`
- * @param {LogLevelKey | string} name
+ * Get the verbosity for a log level.
+ * @param {LogLevelName | string} name
  * @returns {LogLevels['SILENT'] | LogLevels['INFO'] | LogLevels['DEBUG'] | LogLevels['TRACE']}
  */
-const getVerbosity = (name) => {
-    switch (name) {
-        default:
-        case 'SILENT':
-            return config.SILENT;
-        case 'INFO':
-            return config.INFO;
-        case 'DEBUG':
-            return config.DEBUG;
-        case 'TRACE':
-            return config.TRACE;
-    }
-};
+const getVerbosity = util.getNumberFromLevel;
 
 /**
- * @type {LogLevels['SILENT'] | LogLevels['INFO'] | LogLevels['DEBUG'] | LogLevels['TRACE']}
+ * @type {LogLevelNumber}
  */
-let verbosity = getVerbosity(process.env.LOG_LEVEL);
+let verbosity;
+
+if (process && process.env) {
+    // Expecting node environment.
+    verbosity = util.getNumberFromLevel(process.env.LOG_LEVEL);
+} else {
+    // Expecting browser environment.
+    // @ts-ignore
+    verbosity = util.getNumberFromLevel(window.LOG_LEVEL);
+}
 
 /**
  * Create an info logger for a log level.
  *
- * @param {LogLevelKey} name
+ * @param {LogLevelName} name
  * @returns {void}
  */
 const setVerbosity = (name) => {
-    verbosity = getVerbosity(name);
+    verbosity = util.getNumberFromLevel(name);
 };
 
 /**
  * Create an info logger for a log level.
  *
- * @param {LogLevels['SILENT'] | LogLevels['INFO'] | LogLevels['DEBUG'] | LogLevels['TRACE']} level
+ * @param {LogLevelName} name
  */
-const logger = (level) => {
+const logger = (name, prefix = '') => {
+    const level = util.getNumberFromLevel(name);
+
     /**
      * Log a message to stdout.
      *
@@ -78,17 +82,30 @@ const logger = (level) => {
      */
     const logger = (message) => {
         if (verbosity >= level) {
-            console.log(chalk`${getLogPrefix(level)}${message}`);
+            console.log(chalk`${getLogPrefix(name, prefix)}${message}`);
         }
     };
 
     return logger;
 };
 
+/**
+ * Create logging functions with a prefix.
+ * @param {string} prefix
+ */
+const create = (prefix = '') => {
+    return {
+        info: logger('INFO', prefix),
+        debug: logger('DEBUG', prefix),
+        trace: logger('TRACE', prefix),
+    };
+};
+
 module.exports = {
     getVerbosity,
     setVerbosity,
-    info: logger(1),
-    debug: logger(2),
-    trace: logger(3),
+    info: logger('INFO'),
+    debug: logger('DEBUG'),
+    trace: logger('TRACE'),
+    create: create,
 };

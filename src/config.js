@@ -1,16 +1,28 @@
 // @ts-check
 
-const SILENT = 0;
-const INFO = 1;
-const DEBUG = 2;
-const TRACE = 3;
+/**
+ * Map from log level names to their number.
+ * @type {{ SILENT: 0, INFO: 1, DEBUG: 2, TRACE: 3 }}
+ */
+const LEVEL_TO_NUMBER = {
+    SILENT: 0,
+    INFO: 1,
+    DEBUG: 2,
+    TRACE: 3,
+};
 
-/** @typedef {{ SILENT: typeof SILENT, INFO: typeof INFO, DEBUG: typeof DEBUG, TRACE: typeof TRACE }} Config */
+/**
+ * Map from number to their respective log level names.
+ * @type {{ 0: 'SILENT', 1: 'INFO', 2: 'DEBUG', 3: 'TRACE' }}
+ */
+const NUMBER_TO_LEVEL = {
+    0: 'SILENT',
+    1: 'INFO',
+    2: 'DEBUG',
+    3: 'TRACE',
+};
 
-/** @type {Config} */
 module.exports = {
-    SILENT,
-    INFO,
-    DEBUG,
-    TRACE,
+    LEVEL_TO_NUMBER,
+    NUMBER_TO_LEVEL,
 };
