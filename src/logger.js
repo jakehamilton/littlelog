@@ -38,8 +38,8 @@ const getLogPrefix = (name, prefix) => {
 
 /**
  * Get the verbosity for a log level.
- * @param {LogLevelName | string} name
- * @returns {LogLevels['SILENT'] | LogLevels['INFO'] | LogLevels['DEBUG'] | LogLevels['TRACE']}
+ * @param {LogLevelName} name
+ * @returns {LogLevelNumber}
  */
 const getVerbosity = util.getNumberFromLevel;
 
@@ -50,8 +50,9 @@ let verbosity;
 
 if (process && process.env) {
     // Expecting node environment.
+    // @ts-ignore
     verbosity = util.getNumberFromLevel(process.env.LOG_LEVEL);
-} else {
+} else if (window) {
     // Expecting browser environment.
     // @ts-ignore
     verbosity = util.getNumberFromLevel(window.LOG_LEVEL);

@@ -1,6 +1,18 @@
 // @ts-check
 const { LEVEL_TO_NUMBER, NUMBER_TO_LEVEL } = require('./config');
 
+/**
+ * @typedef {import('./config')} Config
+ */
+
+/**
+ * @typedef {keyof Config['LEVEL_TO_NUMBER']} LogLevelName
+ */
+
+/**
+ * @typedef {keyof Config['NUMBER_TO_LEVEL']} LogLevelNumber
+ */
+
 const range = (min, max, x) => {
     return Math.min(Math.max(x, min), max);
 };
@@ -11,7 +23,8 @@ const microtask = (f) => {
 
 /**
  * Get the log level name for a given number.
- * @param {number} level
+ * @param {LogLevelNumber | number} level
+ * @returns {LogLevelName}
  */
 const getLevelFromNumber = (level = 0) => {
     if (NUMBER_TO_LEVEL.hasOwnProperty(level)) {
@@ -23,7 +36,8 @@ const getLevelFromNumber = (level = 0) => {
 
 /**
  * Get the number for a given log level name.
- * @param {string} name
+ * @param {LogLevelName} name
+ * @returns {LogLevelNumber}
  */
 const getNumberFromLevel = (name = 'SILENT') => {
     if (name && LEVEL_TO_NUMBER.hasOwnProperty(name)) {
