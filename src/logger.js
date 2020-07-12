@@ -18,7 +18,7 @@ const util = require('./util');
 /**
  * Get the prefix for a log.
  *
- * @param {LogLevelName} name
+ * @param {LogLevelName | 'ERROR'} name
  * @returns {string} prefix
  */
 const getLogPrefix = (name, prefix) => {
@@ -26,13 +26,19 @@ const getLogPrefix = (name, prefix) => {
 
     switch (name) {
         case 'SILENT':
-            return '';
+            if (userPrefix === '') {
+                return '';
+            } else {
+                return chalk`{white.bold ${userPrefix}}`;
+            }
         case 'INFO':
             return chalk`{blueBright.bold ${userPrefix}[INFO]} `;
         case 'DEBUG':
             return chalk`{yellow.bold ${userPrefix}[DEBUG]} `;
         case 'TRACE':
             return chalk`{bold ${userPrefix}[TRACE]} `;
+        case 'ERROR':
+            return chalk`{red.bold ${userPrefix}[ERROR]}`;
     }
 };
 
@@ -91,6 +97,24 @@ const logger = (name, prefix = '') => {
 };
 
 /**
+ * Create an info logger for a log level.
+ *
+ * @param {string} prefix
+ */
+const errorLogger = (prefix = '') => {
+    /**
+     * Log a message to stdout.
+     *
+     * @param {string} message
+     */
+    const logger = (message) => {
+        console.error(chalk`${getLogPrefix('ERROR', prefix)} ${message}`);
+    };
+
+    return logger;
+};
+
+/**
  * Create logging functions with a prefix.
  * @param {string} prefix
  */
@@ -99,6 +123,7 @@ const create = (prefix = '') => {
         info: logger('INFO', prefix),
         debug: logger('DEBUG', prefix),
         trace: logger('TRACE', prefix),
+        error: errorLogger(prefix),
     };
 };
 
@@ -108,5 +133,6 @@ module.exports = {
     info: logger('INFO'),
     debug: logger('DEBUG'),
     trace: logger('TRACE'),
+    error: errorLogger(),
     create: create,
 };
