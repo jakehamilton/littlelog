@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="./assets/littlelog.png" width="400">
+</p>
+
 # LittleLog
 
 > A simple logging utility.
