@@ -26,7 +26,7 @@ const microtask = (f) => {
  * @param {LogLevelNumber | number} level
  * @returns {LogLevelName}
  */
-const getLevelFromNumber = (level = 0) => {
+const getLevelFromNumber = (level = 1) => {
     if (NUMBER_TO_LEVEL.hasOwnProperty(level)) {
         return NUMBER_TO_LEVEL[level];
     } else {
@@ -39,11 +39,11 @@ const getLevelFromNumber = (level = 0) => {
  * @param {LogLevelName} name
  * @returns {LogLevelNumber}
  */
-const getNumberFromLevel = (name = 'SILENT') => {
+const getNumberFromLevel = (name = 'INFO') => {
     if (name && LEVEL_TO_NUMBER.hasOwnProperty(name)) {
         return LEVEL_TO_NUMBER[name];
     } else {
-        return LEVEL_TO_NUMBER[0];
+        return LEVEL_TO_NUMBER[1];
     }
 };
 

@@ -18,7 +18,7 @@ const util = require('./util');
 /**
  * Get the prefix for a log.
  *
- * @param {LogLevelName} name
+ * @param {LogLevelName | "WARN"} name
  * @returns {string} prefix
  */
 const getLogPrefix = (name, prefix) => {
@@ -29,10 +29,12 @@ const getLogPrefix = (name, prefix) => {
             return '';
         case 'INFO':
             return chalk`{blueBright.bold ${userPrefix}[INFO]} `;
+        case 'WARN':
+            return chalk`{yellow.bold ${userPrefix}[WARN]} `;
         case 'DEBUG':
-            return chalk`{yellow.bold ${userPrefix}[DEBUG]} `;
+            return chalk`{bold ${userPrefix}[DEBUG]} `;
         case 'TRACE':
-            return chalk`{bold ${userPrefix}[TRACE]} `;
+            return chalk`{dim.bold ${userPrefix}[TRACE]} `;
     }
 };
 
@@ -61,20 +63,25 @@ if (process && process.env) {
 /**
  * Create an info logger for a log level.
  *
- * @param {LogLevelName} name
+ * @param {LogLevelName | LogLevelNumber} name
  * @returns {void}
  */
 const setVerbosity = (name) => {
-    verbosity = util.getNumberFromLevel(name);
+    if (typeof name === 'number') {
+        // @ts-ignore
+        verbosity = Math.max(Math.min(name, 3), 0);
+    } else {
+        verbosity = util.getNumberFromLevel(name);
+    }
 };
 
 /**
  * Create an info logger for a log level.
  *
- * @param {LogLevelName} name
+ * @param {LogLevelName | "WARN"} name
  */
 const logger = (name, prefix = '') => {
-    const level = util.getNumberFromLevel(name);
+    const level = util.getNumberFromLevel(name === 'WARN' ? 'INFO' : name);
 
     /**
      * Log a message to stdout.
@@ -97,6 +104,7 @@ const logger = (name, prefix = '') => {
 const create = (prefix = '') => {
     return {
         info: logger('INFO', prefix),
+        warn: logger('WARN', prefix),
         debug: logger('DEBUG', prefix),
         trace: logger('TRACE', prefix),
     };
@@ -106,6 +114,7 @@ module.exports = {
     getVerbosity,
     setVerbosity,
     info: logger('INFO'),
+    warn: logger('WARN'),
     debug: logger('DEBUG'),
     trace: logger('TRACE'),
     create: create,
